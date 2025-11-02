@@ -38,7 +38,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydb
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     command: >
@@ -73,6 +73,24 @@ services:
       CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
     volumes:
       - ./debezium-connector-config:/kafka/connect-config
+    networks:
+      - debezium-test
+
+  # NEW: Kafka UI Service
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+      - zookeeper
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      # Optional: Enable dynamic cluster config (via UI)
+      DYNAMIC_CONFIG_ENABLED: "true"
     networks:
       - debezium-test
 
